@@ -21,14 +21,14 @@ app.post('/voice', async (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
 
   try {
-    // Generate ElevenLabs audio for greeting - make it personal and natural
-    const greetingAudioId = await elevenlabsService.generateSpeech('Hey, this is Saeed. What\'s up?');
+    // Generate ElevenLabs audio for greeting - professional and welcoming
+    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed. How can I help you today?');
     if (greetingAudioId) {
       const greetingUrl = `${req.protocol}://${req.get('host')}/audio/${greetingAudioId}`;
       twiml.play(greetingUrl);
     } else {
       // Fallback to Twilio TTS
-      twiml.say('Hey, this is Saeed. What\'s up?');
+      twiml.say('Hello, this is Saeed. How can I help you today?');
     }
 
     // Gather speech input naturally
@@ -46,8 +46,8 @@ app.post('/voice', async (req, res) => {
 
   } catch (error) {
     console.error('Error in voice endpoint:', error);
-    // Fallback - keep it personal
-    twiml.say('Hey, this is Saeed. What\'s up?');
+    // Fallback - keep it professional
+    twiml.say('Hello, this is Saeed. How can I help you today?');
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
@@ -71,14 +71,11 @@ app.post('/process-speech', async (req, res) => {
     let audioUrl = null;
 
     if (speechResult) {
-      // Start xAI response generation
-      const aiResponsePromise = xaiService.generateResponse(speechResult);
-
-      // While xAI is processing, we can start preparing for audio generation
-      const aiResponse = await aiResponsePromise;
+      // Get AI response from xAI
+      const aiResponse = await xaiService.generateResponse(speechResult);
 
       if (aiResponse) {
-        // Generate audio with ElevenLabs (this is the main bottleneck now)
+        // Generate audio with ElevenLabs
         const audioId = await elevenlabsService.generateSpeech(aiResponse);
         if (audioId) {
           audioUrl = `${req.protocol}://${req.get('host')}/audio/${audioId}`;
@@ -109,13 +106,13 @@ app.post('/process-speech', async (req, res) => {
 
   } catch (error) {
     console.error('Error processing speech:', error);
-    // Keep error message natural and personal
-    const errorAudioId = await elevenlabsService.generateSpeech('Sorry, I didn\'t catch that. Can you say that again?');
+    // Keep error message professional
+    const errorAudioId = await elevenlabsService.generateSpeech('I apologize, I didn\'t catch that clearly. Could you please repeat that?');
     if (errorAudioId) {
       const errorUrl = `${req.protocol}://${req.get('host')}/audio/${errorAudioId}`;
       twiml.play(errorUrl);
     } else {
-      twiml.say('Sorry, I didn\'t catch that. Can you say that again?');
+      twiml.say('I apologize, I didn\'t catch that clearly. Could you please repeat that?');
     }
 
     const gather = twiml.gather({
