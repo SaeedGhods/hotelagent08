@@ -40,13 +40,13 @@ app.post('/voice', async (req, res) => {
     });
 
     // Generate ElevenLabs audio for instructions
-    const promptAudioId = await elevenlabsService.generateSpeech('Please speak your message after the beep.');
+    const promptAudioId = await elevenlabsService.generateSpeech('Please speak.');
     if (promptAudioId) {
       const promptUrl = `${req.protocol}://${req.get('host')}/audio/${promptAudioId}`;
       gather.play(promptUrl);
     } else {
       // Fallback to Twilio TTS
-      gather.say('Please speak your message after the beep.');
+      gather.say('Please speak.');
     }
 
     // If no speech detected, end call
@@ -114,14 +114,14 @@ app.post('/process-speech', async (req, res) => {
       speechTimeout: 'auto'
     });
 
-    // Generate ElevenLabs audio for follow-up prompt
-    const followUpAudioId = await elevenlabsService.generateSpeech('What else can I help you with?');
+    // Generate ElevenLabs audio for simple follow-up prompt
+    const followUpAudioId = await elevenlabsService.generateSpeech('Go ahead.');
     if (followUpAudioId) {
       const followUpUrl = `${req.protocol}://${req.get('host')}/audio/${followUpAudioId}`;
       gather.play(followUpUrl);
     } else {
       // Fallback to Twilio TTS
-      gather.say('What else can I help you with?');
+      gather.say('Go ahead.');
     }
 
   } catch (error) {
