@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: ai-voice-agent
+    name: hotel-concierge-agent
     env: node
     buildCommand: npm install
     startCommand: npm start

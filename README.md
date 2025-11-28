@@ -1,6 +1,6 @@
-# AI Voice Agent
+# Hotel Concierge AI Agent
 
-A simple voice-based AI agent using Twilio and xAI that you can call via phone.
+A specialized AI concierge service for hotel guests using Twilio and xAI. Handles room service, reservations, local recommendations, and guest assistance.
 
 ## Setup Instructions
 
@@ -63,15 +63,23 @@ The server will run on http://localhost:3000
 - `POST /voice`: Twilio voice webhook
 - `POST /process-speech`: Speech processing endpoint
 
+## Hotel Services
+
+This AI concierge can assist with:
+- **Room Service**: Order food, beverages, and amenities
+- **Reservations**: Restaurant bookings, spa appointments, tours
+- **Local Information**: Restaurant recommendations, attractions, transportation
+- **Hotel Amenities**: Pool hours, gym access, business center
+- **Guest Assistance**: Wake-up calls, maintenance requests, general inquiries
+
 ## How It Works
 
-1. Someone calls your Twilio number
-2. Twilio sends a request to `/voice`
-3. The app responds with TwiML to gather speech input
-4. Speech is transcribed and sent to xAI for processing
-5. xAI generates a response, which is converted to speech by ElevenLabs
-6. High-quality audio is played back to the caller
-7. The conversation continues until the caller hangs up
+1. Guest calls your hotel concierge number
+2. AI concierge greets them professionally
+3. Guest states their request (room service, reservations, etc.)
+4. Speech is transcribed and processed by xAI with hotel expertise
+5. AI concierge provides helpful, knowledgeable responses
+6. Conversation continues naturally until guest is satisfied
 
 ## Finding Your Voice ID
 
