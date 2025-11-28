@@ -21,14 +21,14 @@ app.post('/voice', async (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
 
   try {
-    // Generate ElevenLabs audio for greeting - professional and welcoming
-    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed. How can I help you today?');
+    // Generate ElevenLabs audio for greeting - friendly and welcoming
+    const greetingAudioId = await elevenlabsService.generateSpeech('Hi, this is Saeed. How can I help you?');
     if (greetingAudioId) {
       const greetingUrl = `${req.protocol}://${req.get('host')}/audio/${greetingAudioId}`;
       twiml.play(greetingUrl);
     } else {
       // Fallback to Twilio TTS
-      twiml.say('Hello, this is Saeed. How can I help you today?');
+      twiml.say('Hi, this is Saeed. How can I help you?');
     }
 
     // Gather speech input naturally
@@ -46,8 +46,8 @@ app.post('/voice', async (req, res) => {
 
   } catch (error) {
     console.error('Error in voice endpoint:', error);
-    // Fallback - keep it professional
-    twiml.say('Hello, this is Saeed. How can I help you today?');
+    // Fallback - keep it friendly
+    twiml.say('Hi, this is Saeed. How can I help you?');
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
@@ -106,13 +106,13 @@ app.post('/process-speech', async (req, res) => {
 
   } catch (error) {
     console.error('Error processing speech:', error);
-    // Keep error message professional
-    const errorAudioId = await elevenlabsService.generateSpeech('I apologize, I didn\'t catch that clearly. Could you please repeat that?');
+    // Keep error message friendly
+    const errorAudioId = await elevenlabsService.generateSpeech('Sorry, I didn\'t catch that. Could you say that again?');
     if (errorAudioId) {
       const errorUrl = `${req.protocol}://${req.get('host')}/audio/${errorAudioId}`;
       twiml.play(errorUrl);
     } else {
-      twiml.say('I apologize, I didn\'t catch that clearly. Could you please repeat that?');
+      twiml.say('Sorry, I didn\'t catch that. Could you say that again?');
     }
 
     const gather = twiml.gather({
