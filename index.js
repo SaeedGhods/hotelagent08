@@ -21,14 +21,14 @@ app.post('/voice', async (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
 
   try {
-    // Generate ElevenLabs audio for greeting - hotel concierge service
-    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed with hotel concierge services. How may I assist you with your stay?');
+    // Generate ElevenLabs audio for greeting - room service and concierge specialist
+    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today?');
     if (greetingAudioId) {
       const greetingUrl = `${req.protocol}://${req.get('host')}/audio/${greetingAudioId}`;
       twiml.play(greetingUrl);
     } else {
       // Fallback to Twilio TTS
-      twiml.say('Hello, this is Saeed with hotel concierge services. How may I assist you with your stay?');
+      twiml.say('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today?');
     }
 
     // Gather speech input naturally
@@ -46,8 +46,8 @@ app.post('/voice', async (req, res) => {
 
   } catch (error) {
     console.error('Error in voice endpoint:', error);
-    // Fallback - keep it hotel concierge focused
-    twiml.say('Hello, this is Saeed with hotel concierge services. How may I assist you with your stay?');
+    // Fallback - keep it room service and concierge focused
+    twiml.say('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today?');
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
