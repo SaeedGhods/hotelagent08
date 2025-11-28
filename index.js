@@ -39,8 +39,15 @@ app.post('/voice', async (req, res) => {
       speechTimeout: 'auto'
     });
 
-    // Use Twilio TTS for instructions (clearer for prompts)
-    gather.say('Please speak your message after the beep.');
+    // Generate ElevenLabs audio for instructions
+    const promptAudioId = await elevenlabsService.generateSpeech('Please speak your message after the beep.');
+    if (promptAudioId) {
+      const promptUrl = `${req.protocol}://${req.get('host')}/audio/${promptAudioId}`;
+      gather.play(promptUrl);
+    } else {
+      // Fallback to Twilio TTS
+      gather.say('Please speak your message after the beep.');
+    }
 
     // If no speech detected, end call
     twiml.say('We didn\'t hear anything. Goodbye!');
@@ -107,8 +114,15 @@ app.post('/process-speech', async (req, res) => {
       speechTimeout: 'auto'
     });
 
-    // Use Twilio TTS for the prompt (ElevenLabs is for AI responses only)
-    gather.say('What else can I help you with?');
+    // Generate ElevenLabs audio for follow-up prompt
+    const followUpAudioId = await elevenlabsService.generateSpeech('What else can I help you with?');
+    if (followUpAudioId) {
+      const followUpUrl = `${req.protocol}://${req.get('host')}/audio/${followUpAudioId}`;
+      gather.play(followUpUrl);
+    } else {
+      // Fallback to Twilio TTS
+      gather.say('What else can I help you with?');
+    }
 
   } catch (error) {
     console.error('Error processing speech:', error);
