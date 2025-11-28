@@ -6,6 +6,7 @@ class ElevenLabsService {
     this.baseURL = 'https://api.elevenlabs.io/v1';
     // Store generated audio temporarily (in production, use Redis or similar)
     this.audioCache = new Map();
+    this.cacheVersion = Date.now(); // Force cache invalidation for new deployments
   }
 
   async generateSpeech(text, voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM') {
@@ -32,8 +33,8 @@ class ElevenLabsService {
       }
       const audioBuffer = Buffer.concat(chunks);
 
-      // Generate a unique ID for this audio
-      const audioId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      // Generate a unique ID for this audio (includes cache version for invalidation)
+      const audioId = this.cacheVersion + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
       // Store in cache with expiration (5 minutes)
       this.audioCache.set(audioId, {
