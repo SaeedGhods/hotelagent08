@@ -1,8 +1,9 @@
-const { ElevenLabs } = require('@elevenlabs/elevenlabs-js');
+const axios = require('axios');
 
 class ElevenLabsService {
   constructor() {
-    this.client = ElevenLabs;
+    this.apiKey = process.env.ELEVENLABS_API_KEY;
+    this.baseURL = 'https://api.elevenlabs.io/v1';
     // Store generated audio temporarily (in production, use Redis or similar)
     this.audioCache = new Map();
   }
@@ -11,17 +12,22 @@ class ElevenLabsService {
     try {
       console.log('Generating speech for:', text.substring(0, 50) + '...');
 
-      const response = await ElevenLabs.textToSpeech.convert({
-        voice_id: voiceId,
-        output_format: 'mp3_22050_32',
+      const response = await axios.post(`${this.baseURL}/text-to-speech/${voiceId}`, {
         text: text,
         model_id: 'eleven_monolingual_v1',
-        api_key: process.env.ELEVENLABS_API_KEY
+        output_format: 'mp3_22050_32'
+      }, {
+        headers: {
+          'xi-api-key': this.apiKey,
+          'Content-Type': 'application/json'
+        },
+        responseType: 'stream'
       });
 
-      // Convert response to buffer
+      // Convert response stream to buffer
       const chunks = [];
-      for await (const chunk of response) {
+      const stream = response.data;
+      for await (const chunk of stream) {
         chunks.push(chunk);
       }
       const audioBuffer = Buffer.concat(chunks);
