@@ -1,10 +1,8 @@
-const { ElevenLabsApi } = require('@elevenlabs/elevenlabs-js');
+const { ElevenLabs } = require('@elevenlabs/elevenlabs-js');
 
 class ElevenLabsService {
   constructor() {
-    this.client = new ElevenLabsApi({
-      apiKey: process.env.ELEVENLABS_API_KEY
-    });
+    this.client = ElevenLabs;
     // Store generated audio temporarily (in production, use Redis or similar)
     this.audioCache = new Map();
   }
@@ -13,11 +11,12 @@ class ElevenLabsService {
     try {
       console.log('Generating speech for:', text.substring(0, 50) + '...');
 
-      const response = await this.client.textToSpeech.convert({
+      const response = await ElevenLabs.textToSpeech.convert({
         voice_id: voiceId,
         output_format: 'mp3_22050_32',
         text: text,
-        model_id: 'eleven_monolingual_v1'
+        model_id: 'eleven_monolingual_v1',
+        api_key: process.env.ELEVENLABS_API_KEY
       });
 
       // Convert response to buffer
