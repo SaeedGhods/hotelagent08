@@ -9,7 +9,7 @@ class ElevenLabsService {
     this.audioCache = new Map();
   }
 
-  async generateSpeech(text, voiceId = '21m00Tcm4TlvDq8ikWAM') {
+  async generateSpeech(text, voiceId = process.env.ELEVENLABS_VOICE_ID || '21m00Tcm4TlvDq8ikWAM') {
     try {
       console.log('Generating speech for:', text.substring(0, 50) + '...');
 
