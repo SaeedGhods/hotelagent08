@@ -41,6 +41,9 @@ app.post('/voice', async (req, res) => {
 
     // No additional prompts needed - keep it natural
 
+    // If no speech detected, end call naturally
+    twiml.hangup();
+
   } catch (error) {
     console.error('Error in voice endpoint:', error);
     // Fallback - keep it personal
