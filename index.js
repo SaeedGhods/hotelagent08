@@ -22,7 +22,7 @@ app.post('/voice', async (req, res) => {
 
   try {
     // Generate ElevenLabs audio for greeting - room service and concierge specialist
-    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today?');
+    const greetingAudioId = await elevenlabsService.generateSpeech('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today? Version 2 deployed.');
     if (greetingAudioId) {
       const greetingUrl = `${req.protocol}://${req.get('host')}/audio/${greetingAudioId}`;
       twiml.play(greetingUrl);
