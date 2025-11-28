@@ -71,8 +71,9 @@ app.post('/process-speech', async (req, res) => {
     let audioUrl = null;
 
     if (speechResult) {
-      // Get AI response from xAI
-      const aiResponse = await xaiService.generateResponse(speechResult);
+      // Get AI response from xAI with conversation context
+      const conversationId = req.body.CallSid; // Use Twilio CallSid as conversation ID
+      const aiResponse = await xaiService.generateResponse(speechResult, conversationId);
 
       if (aiResponse) {
         // Generate audio with ElevenLabs
@@ -88,9 +89,18 @@ app.post('/process-speech', async (req, res) => {
       twiml.play(audioUrl);
     } else {
       // Fallback to Twilio TTS if ElevenLabs fails
-      const fallbackText = speechResult ?
-        'I apologize, but I\'m having trouble generating audio right now. Please try again.' :
-        'I didn\'t catch that. Could you please repeat?';
+      const audioErrorVariations = [
+        'I apologize, but I\'m having a bit of trouble with the audio right now. Could you try again?',
+        'My apologies, there seems to be a temporary audio issue. Would you mind repeating that?',
+        'I\'m experiencing a brief technical difficulty. Could you say that once more?'
+      ];
+      const speechErrorVariations = [
+        'I didn\'t quite catch that. Could you please repeat?',
+        'I missed that, I\'m afraid. Would you mind saying it again?',
+        'I didn\'t hear you clearly. Could you repeat that?'
+      ];
+      const selectedVariations = speechResult ? audioErrorVariations : speechErrorVariations;
+      const fallbackText = selectedVariations[Math.floor(Math.random() * selectedVariations.length)];
       twiml.say(fallbackText);
     }
 
@@ -106,13 +116,22 @@ app.post('/process-speech', async (req, res) => {
 
   } catch (error) {
     console.error('Error processing speech:', error);
-    // Keep error message friendly
-    const errorAudioId = await elevenlabsService.generateSpeech('Sorry, I didn\'t catch that. Could you say that again?');
+    // Keep error message friendly and varied
+    const errorMessages = [
+      "I'm sorry, I didn't quite catch that. Could you say it again?",
+      "My apologies, I missed that. Would you mind repeating it?",
+      "I didn't quite get that. Could you try again?",
+      "Sorry about that, I didn't hear you clearly. Could you repeat that?",
+      "I'm having trouble hearing you clearly. Would you mind saying that once more?"
+    ];
+    const randomErrorMessage = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+
+    const errorAudioId = await elevenlabsService.generateSpeech(randomErrorMessage);
     if (errorAudioId) {
       const errorUrl = `${req.protocol}://${req.get('host')}/audio/${errorAudioId}`;
       twiml.play(errorUrl);
     } else {
-      twiml.say('Sorry, I didn\'t catch that. Could you say that again?');
+      twiml.say(randomErrorMessage);
     }
 
     const gather = twiml.gather({

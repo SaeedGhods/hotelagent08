@@ -17,9 +17,9 @@ class ElevenLabsService {
         model_id: 'eleven_monolingual_v1',
         output_format: 'mp3_22050_32',
         voice_settings: {
-          stability: 0.6,
-          similarity_boost: 0.8,
-          style: 0.5,
+          stability: 0.4,        // Lower for more natural variation
+          similarity_boost: 0.85, // Higher for more consistent character voice
+          style: 0.7,           // Higher for more expressive delivery
           use_speaker_boost: true
         }
       }, {
