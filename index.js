@@ -34,9 +34,8 @@ app.post('/voice', async (req, res) => {
   // Start recording the call using Twilio REST API
   try {
     const callSid = req.body.CallSid;
-    if (callSid) {
-      const recording = await twilioClient.recordings.create({
-        callSid: callSid,
+    if (callSid && callSid !== 'test123') { // Skip test calls
+      const recording = await twilioClient.calls(callSid).recordings.create({
         recordingChannels: 'dual',  // Record both sides of the conversation
         statusCallback: `${req.protocol}://${req.get('host')}/recording-status`,
         statusCallbackMethod: 'POST'
