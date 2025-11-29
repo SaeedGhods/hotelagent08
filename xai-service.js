@@ -50,7 +50,7 @@ class XAIService {
       const response = await axios.post(`${this.baseURL}/chat/completions`, {
         model: 'grok-3',
         messages: messages,
-        max_tokens: 150,
+        max_tokens: 100,  // Reduced from 150 to keep responses more concise for voice
         temperature: 0.7
       }, {
         headers: {

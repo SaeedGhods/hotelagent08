@@ -44,7 +44,13 @@ app.post('/voice', async (req, res) => {
       console.log('✅ Recording started:', recording.sid);
     }
   } catch (recordingError) {
-    console.error('❌ Failed to start recording:', recordingError.message);
+    console.error('❌ Failed to start recording:', {
+      error: recordingError.message,
+      callSid: req.body.CallSid,
+      code: recordingError.code,
+      status: recordingError.status,
+      timestamp: new Date().toISOString()
+    });
   }
 
   try {
@@ -58,11 +64,11 @@ app.post('/voice', async (req, res) => {
       twiml.say('Hello, this is Saeed, your Room Service and Concierge Specialist. How may I assist you today?');
     }
 
-    // Gather speech input naturally
+    // Gather speech input naturally - increased timeout for longer responses
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
-      timeout: 5,
+      timeout: 10,  // Increased from 5 to 10 seconds to allow for longer AI responses
       speechTimeout: 'auto'
     });
 
@@ -78,7 +84,7 @@ app.post('/voice', async (req, res) => {
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
-      timeout: 5,
+      timeout: 10,  // Consistent timeout for longer responses
       speechTimeout: 'auto'
     });
   }
@@ -135,7 +141,7 @@ app.post('/process-speech', async (req, res) => {
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
-      timeout: 5,
+      timeout: 10,  // Consistent timeout for longer responses
       speechTimeout: 'auto'
     });
 
@@ -164,7 +170,7 @@ app.post('/process-speech', async (req, res) => {
     const gather = twiml.gather({
       input: 'speech',
       action: '/process-speech',
-      timeout: 5,
+      timeout: 10,  // Consistent timeout for longer responses
       speechTimeout: 'auto'
     });
   }
