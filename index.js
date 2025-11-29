@@ -4,6 +4,9 @@ const xaiService = require('./xai-service');
 const elevenlabsService = require('./elevenlabs-service');
 require('dotenv').config();
 
+// Initialize Twilio client for call recording
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -19,6 +22,30 @@ app.get('/', (req, res) => {
 // TwiML endpoint for handling incoming calls
 app.post('/voice', async (req, res) => {
   const twiml = new twilio.twiml.VoiceResponse();
+
+  // Log recording parameters from webhook URL
+  console.log('🎙️ Call recording attempt:', {
+    callSid: req.body.CallSid,
+    recordParam: req.query.Record,
+    from: req.body.From,
+    timestamp: new Date().toISOString()
+  });
+
+  // Start recording the call using Twilio REST API
+  try {
+    const callSid = req.body.CallSid;
+    if (callSid) {
+      const recording = await twilioClient.recordings.create({
+        callSid: callSid,
+        recordingChannels: 'dual',  // Record both sides of the conversation
+        statusCallback: `${req.protocol}://${req.get('host')}/recording-status`,
+        statusCallbackMethod: 'POST'
+      });
+      console.log('✅ Recording started:', recording.sid);
+    }
+  } catch (recordingError) {
+    console.error('❌ Failed to start recording:', recordingError.message);
+  }
 
   try {
     // Generate ElevenLabs audio for greeting - room service and concierge specialist
@@ -164,6 +191,33 @@ app.get('/audio/:audioId', (req, res) => {
   });
 
   res.send(audioBuffer);
+});
+
+// Recording status callback endpoint (for REST API recordings)
+app.post('/recording-status', (req, res) => {
+  console.log('🎵 Recording status update:', {
+    accountSid: req.body.AccountSid,
+    callSid: req.body.CallSid,
+    recordingSid: req.body.RecordingSid,
+    recordingUrl: req.body.RecordingUrl,
+    recordingStatus: req.body.RecordingStatus,
+    recordingDuration: req.body.RecordingDuration,
+    recordingChannels: req.body.RecordingChannels,
+    timestamp: new Date().toISOString()
+  });
+
+  if (req.body.RecordingStatus === 'completed' && req.body.RecordingUrl) {
+    console.log('✅ Recording completed successfully:', req.body.RecordingUrl);
+    // Here you could:
+    // - Store recording metadata in a database
+    // - Send notifications to staff for review
+    // - Process the recording for quality assurance
+    // - Archive recordings for compliance
+  } else if (req.body.RecordingStatus === 'failed') {
+    console.log('❌ Recording failed for call:', req.body.CallSid);
+  }
+
+  res.sendStatus(200);
 });
 
 app.listen(port, () => {
